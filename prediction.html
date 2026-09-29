@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marks Prediction System</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f4f7fb;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background: white;
+            border-radius: 18px;
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: #2563eb;
+            color: white;
+            text-align: center;
+            padding: 30px 20px;
+        }
+
+        .header h1 {
+            font-size: 30px;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            font-size: 15px;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 35px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 22px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-size: 15px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #374151;
+        }
+
+        input {
+            padding: 13px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 15px;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .button-container {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 14px 35px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+            transform: translateY(-2px);
+        }
+
+        .result {
+            display: none;
+            margin-top: 30px;
+            padding: 25px;
+            background: #f8fafc;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid #e5e7eb;
+        }
+
+        .result h2 {
+            color: #374151;
+            margin-bottom: 15px;
+        }
+
+        .marks {
+            font-size: 45px;
+            font-weight: bold;
+            color: #2563eb;
+            margin: 10px 0;
+        }
+
+        .grade {
+            font-size: 20px;
+            font-weight: bold;
+            color: #16a34a;
+        }
+
+        .message {
+            margin-top: 10px;
+            color: #6b7280;
+        }
+
+        @media (max-width: 650px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .content {
+                padding: 25px 20px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="header">
+        <h1>Marks Prediction System</h1>
+        <p>Enter student information to predict final marks</p>
+    </div>
+
+    <div class="content">
+
+        <div class="form-grid">
+
+            <div class="form-group">
+                <label for="studyHours">Study Hours per Day</label>
+                <input type="number" id="studyHours"
+                       placeholder="Example: 5"
+                       min="0" max="24">
+            </div>
+
+            <div class="form-group">
+                <label for="attendance">Attendance (%)</label>
+                <input type="number" id="attendance"
+                       placeholder="Example: 85"
+                       min="0" max="100">
+            </div>
+
+            <div class="form-group">
+                <label for="previousMarks">Previous Exam Marks</label>
+                <input type="number" id="previousMarks"
+                       placeholder="Example: 75"
+                       min="0" max="100">
+            </div>
+
+            <div class="form-group">
+                <label for="assignment">Assignment Marks (%)</label>
+                <input type="number" id="assignment"
+                       placeholder="Example: 80"
+                       min="0" max="100">
+            </div>
+
+            <div class="form-group">
+                <label for="internal">Internal Exam Marks (%)</label>
+                <input type="number" id="internal"
+                       placeholder="Example: 70"
+                       min="0" max="100">
+            </div>
+
+            <div class="form-group">
+                <label for="studyConsistency">Study Consistency (%)</label>
+                <input type="number" id="studyConsistency"
+                       placeholder="Example: 75"
+                       min="0" max="100">
+            </div>
+
+        </div>
+
+        <div class="button-container">
+            <button onclick="predictMarks()">
+                Predict Marks
+            </button>
+        </div>
+
+        <div class="result" id="result">
+
+            <h2>Predicted Final Marks</h2>
+
+            <div class="marks" id="predictedMarks">
+                0
+            </div>
+
+            <div class="grade" id="grade">
+                -
+            </div>
+
+            <div class="message" id="message">
+                -
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+function predictMarks() {
+
+    let studyHours =
+        parseFloat(document.getElementById("studyHours").value);
+
+    let attendance =
+        parseFloat(document.getElementById("attendance").value);
+
+    let previousMarks =
+        parseFloat(document.getElementById("previousMarks").value);
+
+    let assignment =
+        parseFloat(document.getElementById("assignment").value);
+
+    let internal =
+        parseFloat(document.getElementById("internal").value);
+
+    let consistency =
+        parseFloat(document.getElementById("studyConsistency").value);
+
+
+    // Check whether all fields are filled
+
+    if (
+        isNaN(studyHours) ||
+        isNaN(attendance) ||
+        isNaN(previousMarks) ||
+        isNaN(assignment) ||
+        isNaN(internal) ||
+        isNaN(consistency)
+    ) {
+        alert("Please fill all fields.");
+        return;
+    }
+
+
+    /*
+        Simple prediction formula.
+
+        Study Hours      = 15%
+        Attendance       = 15%
+        Previous Marks   = 25%
+        Assignment       = 15%
+        Internal Marks   = 20%
+        Consistency      = 10%
+    */
+
+    let studyScore = Math.min(studyHours / 8 * 100, 100);
+
+    let predicted =
+        (studyScore * 0.15) +
+        (attendance * 0.15) +
+        (previousMarks * 0.25) +
+        (assignment * 0.15) +
+        (internal * 0.20) +
+        (consistency * 0.10);
+
+    predicted = Math.round(predicted * 100) / 100;
+
+
+    // Display result
+
+    document.getElementById("result").style.display = "block";
+
+    document.getElementById("predictedMarks").innerText =
+        predicted + " / 100";
+
+
+    // Grade calculation
+
+    let grade;
+    let message;
+
+    if (predicted >= 90) {
+        grade = "A+";
+        message = "Excellent performance!";
+    }
+    else if (predicted >= 80) {
+        grade = "A";
+        message = "Very good performance!";
+    }
+    else if (predicted >= 70) {
+        grade = "B";
+        message = "Good performance.";
+    }
+    else if (predicted >= 60) {
+        grade = "C";
+        message = "Average performance. Keep improving.";
+    }
+    else if (predicted >= 50) {
+        grade = "D";
+        message = "Needs improvement.";
+    }
+    else {
+        grade = "F";
+        message = "More preparation is required.";
+    }
+
+
+    document.getElementById("grade").innerText =
+        "Grade: " + grade;
+
+    document.getElementById("message").innerText =
+        message;
+}
+
+</script>
+
+</body>
+</html>
